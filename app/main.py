@@ -45,3 +45,4 @@ app.include_router(admin_router, prefix="/admin", tags=["Admin"])
 @app.get("/", tags=["Health"])
 async def health_check():
     return {"status": "ok", "service": "Pixlume API"}
+
