@@ -22,9 +22,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.connection import get_db
 from app.models.photo_model import Photo
+from app.models.user_model import User
 from app.schemas.photo_schema import PhotoRead
 from app.services.image_processing import process_image
 from app.services.storage_service import upload_variants
+from app.services.auth_service import get_current_active_user
 
 from dotenv import load_dotenv
 
@@ -32,25 +34,7 @@ load_dotenv()
 
 router = APIRouter()
 
-_ADMIN_API_KEY: str | None = os.environ.get("ADMIN_API_KEY")
-
-
-# ---------------------------------------------------------------------------
-# Auth dependency
-# ---------------------------------------------------------------------------
-
-async def verify_admin(x_admin_key: str = Header(..., alias="X-Admin-Key")) -> None:
-    """Raise 403 if the provided API key does not match ADMIN_API_KEY."""
-    if not _ADMIN_API_KEY:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Admin API key is not configured on the server.",
-        )
-    if x_admin_key != _ADMIN_API_KEY:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid admin API key.",
-        )
+# JWT Auth dependency imported from auth_service
 
 
 # ---------------------------------------------------------------------------
@@ -61,7 +45,6 @@ async def verify_admin(x_admin_key: str = Header(..., alias="X-Admin-Key")) -> N
     response_model=PhotoRead,
     status_code=status.HTTP_201_CREATED,
     summary="Upload a new photo (admin only)",
-    dependencies=[Depends(verify_admin)],
 )
 async def upload_photo(
     title: str = Form(..., description="Photo title"),
@@ -72,6 +55,7 @@ async def upload_photo(
     ),
     file: UploadFile = File(..., description="Image file (JPEG / PNG / WebP)"),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
     """
     Full upload pipeline:
@@ -140,11 +124,11 @@ async def upload_photo(
     "/photo/{photo_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a photo (admin only)",
-    dependencies=[Depends(verify_admin)],
 )
 async def delete_photo(
     photo_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
     """
     Delete the database record for *photo_id*.
