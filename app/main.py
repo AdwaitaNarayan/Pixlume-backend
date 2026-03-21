@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -5,6 +6,7 @@ from contextlib import asynccontextmanager
 from app.database.connection import init_db
 from app.routes.photos import router as photos_router
 from app.routes.admin import router as admin_router
+from app.routes.auth import router as auth_router
 
 
 @asynccontextmanager
@@ -24,12 +26,12 @@ app = FastAPI(
 # ---------------------------------------------------------------------------
 # CORS – allow the Next.js frontend (and any local dev origin) to call us
 # ---------------------------------------------------------------------------
+origins_env = os.getenv("BACKEND_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
+allow_origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,6 +40,7 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 # Routers
 # ---------------------------------------------------------------------------
+app.include_router(auth_router, prefix="/admin", tags=["Admin Auth"])
 app.include_router(photos_router, prefix="/photos", tags=["Photos"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin"])
 

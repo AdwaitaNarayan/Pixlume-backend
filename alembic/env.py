@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 # Import models
 from app.database.connection import Base
 from app.models import photo_model  # Ensure models are loaded
+from app.models import user_model
 
 # Load environment variables
 load_dotenv()

@@ -56,26 +56,57 @@ async def list_photos(
 
 # ---------------------------------------------------------------------------
 # GET /search?tag=<tag>
-# IMPORTANT: This must be declared BEFORE /{photo_id} so FastAPI doesn't
-# treat the literal string "search" as a UUID parameter.
 # ---------------------------------------------------------------------------
-@router.get("/search", response_model=PhotoListResponse, summary="Search photos by tag")
+@router.get("/search", response_model=PhotoListResponse, summary="Search photos by tag or filters")
 async def search_photos(
-    tag: str = Query(..., description="Tag to search for"),
+    tag: str = Query("", description="Tag or title to search for"),
+    resolution: Optional[str] = Query(None, description="Resolution filter (e.g. '4k', '2k', '1080p')"),
+    date: Optional[str] = Query(None, description="Date filter (e.g. 'today', 'week', 'month')"),
+    category: Optional[str] = Query(None, description="Category filter"),
+    collection: Optional[str] = Query(None, description="Collection filter"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Return photos whose `tags` array contains the given tag (case-insensitive).
-
-    Internally uses PostgreSQL's `@>` array-contains operator via a raw ANY()
-    comparison so the GIN index on the tags column can be exploited.
+    Search photos with advanced filters.
     """
-    tag_lower = tag.strip().lower()
+    query = select(Photo)
+    
+    if tag:
+        tag_lower = tag.strip().lower()
+        # Search in title, caption or tags
+        query = query.where(
+            (Photo.tags.any(tag_lower)) | 
+            (Photo.title.ilike(f"%{tag_lower}%")) |
+            (Photo.caption.ilike(f"%{tag_lower}%"))
+        )
+        
+    if category:
+        cat_lower = category.strip().lower()
+        query = query.where(Photo.tags.any(cat_lower))
+        
+    if resolution:
+        res = resolution.lower()
+        if res == '4k':
+            query = query.where(Photo.image_4k_url.is_not(None))
+        elif res == '2k':
+            query = query.where(Photo.image_2k_url.is_not(None))
+        elif res == '1080p':
+            query = query.where(Photo.image_1080_url.is_not(None))
+        elif res == '720p':
+            query = query.where(Photo.image_720_url.is_not(None))
 
-    # SQLAlchemy expression: tag_lower = ANY(photos.tags)
-    query = select(Photo).where(Photo.tags.any(tag_lower))  # type: ignore[attr-defined]
+    if date:
+        # Simplistic date filter mock
+        from datetime import datetime, timedelta, timezone
+        now = datetime.now(timezone.utc)
+        if date == 'today':
+            query = query.where(Photo.created_at >= now - timedelta(days=1))
+        elif date == 'week':
+            query = query.where(Photo.created_at >= now - timedelta(days=7))
+        elif date == 'month':
+            query = query.where(Photo.created_at >= now - timedelta(days=30))
 
     count_result = await db.execute(
         select(func.count()).select_from(query.subquery())
