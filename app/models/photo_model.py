@@ -19,8 +19,7 @@ downloads       : download counter (default 0)
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import String, Text, Integer, TIMESTAMP, ARRAY
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import String, Text, Integer, TIMESTAMP, ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.connection import Base
@@ -50,6 +49,7 @@ class Photo(Base):
     image_1080_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_2k_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_4k_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    image_8k_url: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),

@@ -30,6 +30,7 @@ class PhotoRead(PhotoBase):
     image_1080_url: Optional[str] = None
     image_2k_url: Optional[str] = None
     image_4k_url: Optional[str] = None
+    image_8k_url: Optional[str] = None
     created_at: datetime
     downloads: int
 
@@ -52,6 +53,7 @@ class PhotoURLs(BaseModel):
     image_1080_url: str
     image_2k_url: str
     image_4k_url: str
+    image_8k_url: str
 
 
 # ---------------------------------------------------------------------------
