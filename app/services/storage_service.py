@@ -107,6 +107,7 @@ VARIANT_KEY_MAP = {
     "1080p": "1080",
     "2k": "2k",
     "4k": "4k",
+    "8k": "8k",
 }
 
 
@@ -149,4 +150,5 @@ def upload_variants(
         image_1080_url=urls["1080p"],
         image_2k_url=urls["2k"],
         image_4k_url=urls["4k"],
+        image_8k_url=urls["8k"],
     )

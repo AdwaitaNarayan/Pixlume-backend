@@ -24,6 +24,7 @@ VARIANTS: dict[str, int] = {
     "1080p": 1920,    # 1080p → 1920 px wide
     "2k": 2560,       # 2K / QHD
     "4k": 3840,       # 4K / UHD
+    "8k": 7680,       # 8K UHD
 }
 
 
