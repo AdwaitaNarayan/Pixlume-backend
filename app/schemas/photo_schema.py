@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict
 # Shared base
 # ---------------------------------------------------------------------------
 class PhotoBase(BaseModel):
-    title: str
+    categories: list[str]
     caption: Optional[str] = None
     tags: Optional[list[str]] = None
 
@@ -39,7 +39,7 @@ class PhotoRead(PhotoBase):
 # Upload request body (multipart fields sent alongside the image file)
 # ---------------------------------------------------------------------------
 class PhotoUploadRequest(BaseModel):
-    title: str
+    categories: list[str]
     caption: Optional[str] = None
     tags: Optional[list[str]] = None
 

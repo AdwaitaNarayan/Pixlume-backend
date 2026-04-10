@@ -47,7 +47,7 @@ router = APIRouter()
     summary="Upload a new photo (admin only)",
 )
 async def upload_photo(
-    title: str = Form(..., description="Photo title"),
+    categories: str = Form(..., description="Comma-separated list of categories"),
     caption: str | None = Form(None, description="Optional caption / description"),
     tags: str | None = Form(
         None,
@@ -98,10 +98,13 @@ async def upload_photo(
             detail=f"Storage upload failed: {exc}",
         ) from exc
 
+    # --- Parse categories -------------------------------------------------------
+    category_list = [c.strip() for c in categories.split(",") if c.strip()]
+
     # --- Persist to DB -----------------------------------------------------------
     photo = Photo(
         id=photo_id,
-        title=title,
+        categories=category_list,
         caption=caption,
         tags=tag_list,
         thumbnail_url=photo_urls.thumbnail_url,
