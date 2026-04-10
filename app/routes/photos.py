@@ -23,6 +23,18 @@ router = APIRouter()
 
 
 # ---------------------------------------------------------------------------
+# GET /categories
+# ---------------------------------------------------------------------------
+@router.get("/categories", summary="Get all unique categories")
+async def get_categories(db: AsyncSession = Depends(get_db)):
+    """
+    Return a list of all distinct categories currently used by photos.
+    """
+    result = await db.execute(select(func.unnest(Photo.categories)).distinct())
+    return [row[0] for row in result.all()]
+
+
+# ---------------------------------------------------------------------------
 # GET /photos
 # ---------------------------------------------------------------------------
 @router.get("/", response_model=PhotoListResponse, summary="List all photos")
@@ -75,16 +87,16 @@ async def search_photos(
     
     if tag:
         tag_lower = tag.strip().lower()
-        # Search in title, caption or tags
+        # Search in caption, tags, or categories
         query = query.where(
             (Photo.tags.any(tag_lower)) | 
-            (Photo.title.ilike(f"%{tag_lower}%")) |
+            (Photo.categories.any(tag_lower)) |
             (Photo.caption.ilike(f"%{tag_lower}%"))
         )
         
     if category:
         cat_lower = category.strip().lower()
-        query = query.where(Photo.tags.any(cat_lower))
+        query = query.where(Photo.categories.any(cat_lower))
         
     if resolution:
         res = resolution.lower()
