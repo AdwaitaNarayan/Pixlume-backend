@@ -3,6 +3,7 @@ Async PostgreSQL connection using SQLAlchemy 2.x (async) + asyncpg driver.
 """
 
 import os
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 
@@ -38,6 +39,7 @@ async def init_db() -> None:
     from app.models import photo_model  # noqa: F401
 
     async with engine.begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
         await conn.run_sync(Base.metadata.create_all)
 
 

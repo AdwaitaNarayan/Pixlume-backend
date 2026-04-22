@@ -62,4 +62,11 @@ class Photo(Base):
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
+    device_type: Mapped[str] = mapped_column(
+        String(20),
+        default="desktop",
+        nullable=False,
+        index=True,
+        comment="Type of device the photo is optimized for: 'desktop', 'mobile', or 'both'"
+    )
     downloads: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

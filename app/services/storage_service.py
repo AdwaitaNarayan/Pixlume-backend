@@ -145,10 +145,10 @@ def upload_variants(
         urls[variant_name] = url
 
     return PhotoURLs(
-        thumbnail_url=urls["thumbnail"],
-        image_720_url=urls["720p"],
-        image_1080_url=urls["1080p"],
-        image_2k_url=urls["2k"],
-        image_4k_url=urls["4k"],
-        image_8k_url=urls["8k"],
+        thumbnail_url=urls.get("thumbnail"),
+        image_720_url=urls.get("720p"),
+        image_1080_url=urls.get("1080p"),
+        image_2k_url=urls.get("2k"),
+        image_4k_url=urls.get("4k"),
+        image_8k_url=urls.get("8k"),
     )

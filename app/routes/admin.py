@@ -53,6 +53,7 @@ async def upload_photo(
         None,
         description="Comma-separated list of tags, e.g. 'nature,sunset,landscape'",
     ),
+    device_type: str = Form("desktop", description="Target device type ('desktop', 'mobile', 'both')"),
     file: UploadFile = File(..., description="Image file (JPEG / PNG / WebP)"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
@@ -112,6 +113,7 @@ async def upload_photo(
         image_1080_url=photo_urls.image_1080_url,
         image_2k_url=photo_urls.image_2k_url,
         image_4k_url=photo_urls.image_4k_url,
+        device_type=device_type,
     )
     db.add(photo)
     await db.flush()      # get the generated values without committing yet
