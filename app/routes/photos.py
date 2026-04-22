@@ -76,6 +76,7 @@ async def search_photos(
     date: Optional[str] = Query(None, description="Date filter (e.g. 'today', 'week', 'month')"),
     category: Optional[str] = Query(None, description="Category filter"),
     collection: Optional[str] = Query(None, description="Collection filter"),
+    device_type: Optional[str] = Query(None, description="Device filter ('desktop', 'mobile')"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -118,6 +119,17 @@ async def search_photos(
     if category:
         cat_lower = category.strip().lower()
         query = query.where(Photo.categories.any(cat_lower))
+        
+    if device_type:
+        dev_lower = device_type.strip().lower()
+        # If user searches for 'mobile', we show 'mobile' AND 'both'
+        if dev_lower in ['mobile', 'desktop']:
+            query = query.where(
+                (Photo.device_type == dev_lower) | 
+                (Photo.device_type == 'both')
+            )
+        else:
+            query = query.where(Photo.device_type == dev_lower)
         
     if resolution:
         res = resolution.lower()

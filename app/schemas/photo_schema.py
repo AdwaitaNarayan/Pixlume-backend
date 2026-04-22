@@ -16,6 +16,7 @@ class PhotoBase(BaseModel):
     categories: list[str]
     caption: Optional[str] = None
     tags: Optional[list[str]] = None
+    device_type: str = "desktop"
 
 
 # ---------------------------------------------------------------------------
