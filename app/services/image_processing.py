@@ -60,6 +60,8 @@ def process_image(file: BinaryIO) -> dict[str, io.BytesIO]:
         Keys are the variant names defined in VARIANTS plus "thumbnail".
     """
     original = Image.open(file)
+    width, height = original.size
+    long_edge = max(width, height)
 
     # Ensure correct colour mode – some PNGs arrive as RGBA / P etc.
     if original.mode not in ("RGB", "L"):
@@ -68,6 +70,13 @@ def process_image(file: BinaryIO) -> dict[str, io.BytesIO]:
     outputs: dict[str, io.BytesIO] = {}
 
     for variant_name, max_edge in VARIANTS.items():
+        # STRICT DOWNSCALING LOGIC:
+        # We only generate a variant if the original image is actually large enough
+        # to support it. This prevents "Upscaling" artifacts.
+        # Exception: We always keep the 'thumbnail' variant.
+        if variant_name != "thumbnail" and long_edge < max_edge:
+            continue
+
         resized = _resize_image(original, max_edge)
         buffer = io.BytesIO()
 
