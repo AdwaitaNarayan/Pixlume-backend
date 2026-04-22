@@ -64,3 +64,4 @@ class PhotoListResponse(BaseModel):
     page: int
     page_size: int
     results: list[PhotoRead]
+    suggestion: Optional[str] = None
