@@ -49,12 +49,12 @@ class PhotoUploadRequest(BaseModel):
 # Internal schema that storage_service returns after uploading variants
 # ---------------------------------------------------------------------------
 class PhotoURLs(BaseModel):
-    thumbnail_url: str
-    image_720_url: str
-    image_1080_url: str
-    image_2k_url: str
-    image_4k_url: str
-    image_8k_url: str
+    thumbnail_url: Optional[str] = None
+    image_720_url: Optional[str] = None
+    image_1080_url: Optional[str] = None
+    image_2k_url: Optional[str] = None
+    image_4k_url: Optional[str] = None
+    image_8k_url: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
