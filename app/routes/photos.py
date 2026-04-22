@@ -164,12 +164,22 @@ async def search_photos(
     )
     photos = result.scalars().all()
 
+    discovery_categories = None
+    # IF NO RESULTS AND NO SUGGESTION -> Fetch Top 5 Popular Categories
+    if total == 0 and not suggestion:
+        # SELECT unnest(categories) as cat, count(*) FROM photos GROUP BY cat ORDER BY count DESC LIMIT 5
+        cat_unnest = func.unnest(Photo.categories).label("cat")
+        disco_query = select(cat_unnest).group_by(cat_unnest).order_by(func.count().desc()).limit(5)
+        disco_result = await db.execute(disco_query)
+        discovery_categories = [row[0] for row in disco_result.all()]
+
     return PhotoListResponse(
         total=total,
         page=page,
         page_size=page_size,
         results=[PhotoRead.model_validate(p) for p in photos],
-        suggestion=suggestion
+        suggestion=suggestion,
+        discovery_categories=discovery_categories
     )
 
 

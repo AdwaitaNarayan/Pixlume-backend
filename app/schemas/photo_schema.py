@@ -66,3 +66,4 @@ class PhotoListResponse(BaseModel):
     page_size: int
     results: list[PhotoRead]
     suggestion: Optional[str] = None
+    discovery_categories: Optional[list[str]] = None
