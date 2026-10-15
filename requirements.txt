@@ -4,9 +4,10 @@ uvicorn[standard]>=0.29.0
 python-multipart>=0.0.9        # required for File / Form uploads in FastAPI
 
 # ── Database ────────────────────────────────────────────────────────────────
-sqlalchemy>=2.0.29
+sqlalchemy[asyncio]>=2.0.29
 asyncpg>=0.29.0                # async PostgreSQL driver
 alembic>=1.13.1                # migrations (optional but recommended)
+greenlet>=3.0.0                # required by sqlalchemy async
 
 # ── Image processing ────────────────────────────────────────────────────────
 Pillow>=10.3.0
